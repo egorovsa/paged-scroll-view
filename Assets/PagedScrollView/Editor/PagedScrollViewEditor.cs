@@ -287,6 +287,7 @@ namespace com.PagedScrollView
                 canvasGO = canvas.gameObject;
             }
 
+
             CreateScrollViewLayouts(canvasGO, Vector2.up, out GameObject pagedScrollView);
             pagedScrollView.name = "Paged Scroll View (Paged Vertical)";
             Selection.activeGameObject = pagedScrollView;
