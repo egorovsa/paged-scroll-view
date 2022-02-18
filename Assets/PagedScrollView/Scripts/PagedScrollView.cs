@@ -169,7 +169,7 @@ namespace com.PagedScrollView
 
         void UpdateSize()
         {
-            if (!scrollRect || NumberOfPage == 0 || !content)
+            if (!scrollRect || !content || NumberOfPage == 0 )
             {
                 return;
             }
