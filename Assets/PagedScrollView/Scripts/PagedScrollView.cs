@@ -27,7 +27,6 @@ namespace com.PagedScrollView
         private float startPositionTop = 0f;
         private float horizontalPositionDelta = 0f;
         private float verticalPositionDelta = 0f;
-        // private RectTransform content;
         private int activePage;
         private int currentPagesCount = 0;
 
@@ -85,7 +84,14 @@ namespace com.PagedScrollView
         {
             RunTimePageIndex = pageIndex;
 
-            FinishMovement();
+            StopAllCoroutines();
+            StartCoroutine(AnimateContentTo(GetPagePositionByPageIndex(pageIndex)));
+        }
+
+        public void GoToPageForce(int pageIndex)
+        {
+            RunTimePageIndex = pageIndex;
+            SetContentPosition(GetPagePositionByPageIndex(pageIndex));
         }
 
         public void SetIsDraggig(bool state)
@@ -99,7 +105,7 @@ namespace com.PagedScrollView
             }
             else
             {
-                FinishMovement();
+                FinishMovementAfterDragging();
             }
         }
 
@@ -169,7 +175,7 @@ namespace com.PagedScrollView
 
         void UpdateSize()
         {
-            if (!scrollRect || !content || NumberOfPage == 0 )
+            if (!scrollRect || !content || NumberOfPage == 0)
             {
                 return;
             }
@@ -189,11 +195,11 @@ namespace com.PagedScrollView
 
             if (isHorizontal)
             {
-                content.offsetMax = new Vector2(GetChild(content.childCount - 1).anchoredPosition.x, 0);
+                content.offsetMax = new Vector2(viewportWidth * (NumberOfPage - 1) + content.offsetMin.x, 0);
             }
             else
             {
-                content.offsetMin = new Vector2(0, GetChild(content.childCount - 1).anchoredPosition.y);
+                content.offsetMin = new Vector2(0, viewportHeight * (NumberOfPage - 1) + content.offsetMax.x);
             }
 
         }
@@ -209,11 +215,8 @@ namespace com.PagedScrollView
             return passedDistance >= MinimalDistancePercent;
         }
 
-        float GetPagePosition()
+        void UpdatePageIndex()
         {
-            var viewportUnit = isHorizontal ? viewportWidth : viewportHeight;
-            var direction = isHorizontal ? -1 : 1;
-
             if (IsMinimalDistancePassed() || isFastSwiping)
             {
                 var positionDelta = isHorizontal
@@ -233,14 +236,30 @@ namespace com.PagedScrollView
                     RunTimePageIndex = RunTimePageIndex < 0 ? 0 : RunTimePageIndex;
                 }
             }
-
-            return viewportUnit * RunTimePageIndex * direction;
         }
 
-        void FinishMovement()
+        float GetPagePositionByPageIndex(int PageIndex)
+        {
+            var viewportUnit = isHorizontal ? viewportWidth : viewportHeight;
+            var direction = isHorizontal ? -1 : 1;
+
+            return viewportUnit * PageIndex * direction;
+        }
+
+        void SetContentPosition(float position)
+        {
+            var vectorPosition = isHorizontal
+                  ? new Vector2(position, 0)
+                  : new Vector2(0, position);
+
+            scrollRect.content.transform.localPosition = vectorPosition;
+        }
+
+        void FinishMovementAfterDragging()
         {
             StopAllCoroutines();
-            StartCoroutine(AnimateContentTo(GetPagePosition()));
+            UpdatePageIndex();
+            StartCoroutine(AnimateContentTo(GetPagePositionByPageIndex(RunTimePageIndex)));
 
             draggingTime = 0f;
         }
@@ -259,11 +278,7 @@ namespace com.PagedScrollView
 
                 var newPosition = Mathf.Lerp(startPosition, endPosition, Mathf.SmoothStep(0f, 1f, time));
 
-                var vectorPosition = isHorizontal
-                    ? new Vector2(newPosition, 0)
-                    : new Vector2(0, newPosition);
-
-                scrollRect.content.transform.localPosition = vectorPosition;
+                SetContentPosition(newPosition);
 
                 yield return null;
             }
