@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace com.PagedScrollView
@@ -17,6 +19,9 @@ namespace com.PagedScrollView
 
         [Range(0f, 1f)]
         public float AnimationSpeed = 0.3f;
+
+        [SerializeField]
+        public UnityEvent<int> OnPageChange;
 
         private int RunTimePageIndex = 0;
         private LayoutElement layoutElement;
@@ -83,6 +88,7 @@ namespace com.PagedScrollView
         public void GoToPage(int pageIndex)
         {
             RunTimePageIndex = pageIndex;
+            OnPageChange.Invoke(RunTimePageIndex);
 
             StopAllCoroutines();
             StartCoroutine(AnimateContentTo(GetPagePositionByPageIndex(pageIndex)));
@@ -91,6 +97,7 @@ namespace com.PagedScrollView
         public void GoToPageForce(int pageIndex)
         {
             RunTimePageIndex = pageIndex;
+            OnPageChange.Invoke(RunTimePageIndex);
             SetContentPosition(GetPagePositionByPageIndex(pageIndex));
         }
 
@@ -229,11 +236,13 @@ namespace com.PagedScrollView
                 {
                     RunTimePageIndex++;
                     RunTimePageIndex = RunTimePageIndex > childCount ? childCount : RunTimePageIndex;
+                    OnPageChange.Invoke(RunTimePageIndex);
                 }
                 else
                 {
                     RunTimePageIndex--;
                     RunTimePageIndex = RunTimePageIndex < 0 ? 0 : RunTimePageIndex;
+                    OnPageChange.Invoke(RunTimePageIndex);
                 }
             }
         }

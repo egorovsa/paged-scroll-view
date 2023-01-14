@@ -14,6 +14,7 @@ namespace com.PagedScrollView
         SerializedProperty Threshold;
         SerializedProperty MinimalDistancePercent;
         SerializedProperty AnimationSpeed;
+        SerializedProperty OnPageChange;
 
         private void OnEnable()
         {
@@ -22,6 +23,7 @@ namespace com.PagedScrollView
             Threshold = serializedObject.FindProperty("Threshold");
             MinimalDistancePercent = serializedObject.FindProperty("MinimalDistancePercent");
             AnimationSpeed = serializedObject.FindProperty("AnimationSpeed");
+            OnPageChange = serializedObject.FindProperty("OnPageChange");
         }
 
         void HeaderInformation()
@@ -337,10 +339,9 @@ namespace com.PagedScrollView
             GUILayout.BeginVertical(EditorStyles.helpBox);
 
             EditorGUILayout.PropertyField(Threshold, new GUIContent("Threshold", "???"), GUILayout.Height(20f));
-
             EditorGUILayout.PropertyField(MinimalDistancePercent, new GUIContent("MinimalDistancePercent", "???"), GUILayout.Height(20f));
-
             EditorGUILayout.PropertyField(AnimationSpeed, new GUIContent("AnimationSpeed", "???"), GUILayout.Height(20f));
+            EditorGUILayout.PropertyField(OnPageChange, new GUIContent("OnPageChange", "???"));
 
             serializedObject.ApplyModifiedProperties();
 
@@ -350,11 +351,8 @@ namespace com.PagedScrollView
         public override void OnInspectorGUI()
         {
             HeaderInformation();
-
             CreateNewPage();
-
             PageButtons();
-
             DrawSettings();
         }
     }
